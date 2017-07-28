@@ -67,16 +67,22 @@ var colors1 = [
 class Bodies{
     x: number;
     y: number; 
+
     dx: number;
+    dy: number;
+
     radius: number = 10;
-    maxRadius: number = 15; 
+    maxRadius: number = 15;
+
     vanquished: boolean = false;
+
     color: number = 2;
 
     constructor(){
         this.x = randeRangeInt(0 + this.radius, canvas.width - this.radius);
         this.y = randeRangeInt(30, 200);
-        this.dx = randeRangeInt(3, 6);
+        this.dx = randeRangeInt(-6, 6);
+        this.dy = randeRange(0.1, 0.5);
     }
 
     draw(){
@@ -91,6 +97,7 @@ class Bodies{
         if(this.x + this.radius  >= canvas.width || this.x - this.radius <= 0){
             this.dx = -this.dx;
         }
+        this.y += this.dy;
 
         this.x += this.dx;
     }
@@ -222,7 +229,7 @@ class Jet{
         this.x = x0;
         this.y = y0;
 
-        this.dx = 7;
+        this.dx = 0;
         this.dxMax = 10;
         this.ax = 1; 
 
@@ -287,11 +294,14 @@ class Jet{
         this.c.fill();
     }
 
+    stopForce = 0.02;
     update(direction): void{
-        this.x += direction * this.dx;
-        // if(this.dx < this.dxMax){
-        //     this.dx += direction * this.ax;
-        // }
+        if(direction == 0){
+            this.dx += (Math.abs(this.dx) > 0) ?  -1 * this.dx * this.stopForce : 0;
+        } else{
+            this.dx += (Math.abs(this.dx) < this.dxMax) ? direction * this.ax : 0;  // per 1 frame
+        }
+        this.x += this.dx;
         this.draw();
     }
 }
@@ -326,11 +336,11 @@ var bullets = [];
 var shotDistance = 10
 function addBullets(){
     var x = jet.x, y = jet.y - jet.hullHeight - 5 - shotDistance;
-    bullets.push(new Bullet(c, x, y, -4, 8, 15));
+    bullets.push(new Bullet(c, x, y, -6, 8, 15));
     x -= (jet.wingWidth + jet.rocketWidth/2), y = jet.y + jet.wingHeight/2 - jet.rocketHeight - shotDistance;
-    bullets.push(new Bullet(c, x, y, -6, 6, 6));
+    bullets.push(new Bullet(c, x, y, -8, 6, 6));
     x += jet.wingWidth * 2 + jet.rocketWidth;
-    bullets.push(new Bullet(c, x, y, -6, 6, 6));
+    bullets.push(new Bullet(c, x, y, -8, 6, 6));
 }
 
 var bodies = [];
@@ -345,10 +355,6 @@ var frame: number = 0;
 function animate(){
     var animation = requestAnimationFrame(animate);
     c.clearRect(0, 0, canvas.width, canvas.height);
-
-    for(var i = 0; i < bodies.length; i++){
-        bodies[i].update();
-    }
 
     if(frame % 10 == 0){
         addBullets();
@@ -366,6 +372,10 @@ function animate(){
         bullets[i].update();
     }
 
+    for(var i = 0; i < bodies.length; i++){
+        bodies[i].update();
+    }
+
     // put in previous for loop
     for(var i = 0; i < bodies.length; i++){
         var collision = false;
@@ -374,6 +384,7 @@ function animate(){
             if(bodies[i].collision(bullets[j])){
                 growthRate++;
                 collision = true;
+                bullets.splice(j, 1);
             }
 
         }
