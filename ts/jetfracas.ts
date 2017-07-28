@@ -12,6 +12,9 @@ function randeRangeInt(x0, x1){
     return Math.round(randeRange(x0, x1));
 }
 
+var background_color = '#D0E4F2';
+canvas.setAttribute('style', 'background-color: ' + background_color);
+
 class Bullet{
     x: number;
     y: number; 
@@ -56,6 +59,11 @@ class Bullet{
     }
 }
 
+var colors1 = [
+    '#30395C',
+    '#4A6491',
+    '#85A5CC'
+]
 class Bodies{
     x: number;
     y: number; 
@@ -63,17 +71,18 @@ class Bodies{
     radius: number = 10;
     maxRadius: number = 15; 
     vanquished: boolean = false;
+    color: number = 2;
 
     constructor(){
         this.x = randeRangeInt(0 + this.radius, canvas.width - this.radius);
         this.y = randeRangeInt(30, 200);
-        this.dx = 5;
+        this.dx = randeRangeInt(3, 6);
     }
 
     draw(){
         c.beginPath();
 		c.arc(this.x, this.y, this.radius, 0, 2*Math.PI, false);
-		//c.fillStyle = this.color;
+		c.fillStyle = colors1[this.color];
 		c.fill();
     }
 
@@ -181,6 +190,7 @@ class Bodies{
     grow(growthRate: number){
         if(!this.vanquished){
             this.radius += growthRate;
+            this.color = (this.color > 0) ? --this.color : this.color;
             //this.draw();
             if(this.radius > this.maxRadius){
                 this.vanquished = true;
@@ -191,7 +201,6 @@ class Bodies{
 }
 
 class Jet{
-
     x: number;
     y: number;
 
@@ -206,6 +215,8 @@ class Jet{
 
     rocketHeight: number;
     rocketWidth: number;
+
+    color: number = 0;
 
     constructor(private c: CanvasRenderingContext2D, x0: number, y0: number){
         this.x = x0;
@@ -272,9 +283,8 @@ class Jet{
         this.c.lineTo(x, y);
         this.c.closePath();
 
-        this.c.fillStyle = '#737373';
+        this.c.fillStyle = colors1[this.color];
         this.c.fill();
-        //c.stroke();
     }
 
     update(direction): void{
@@ -325,7 +335,7 @@ function addBullets(){
 
 var bodies = [];
 function addBodies(){
-    for(var i = 0; i < 20; i++){
+    for(var i = 0; i < 100; i++){
         bodies.push(new Bodies());
     }
 }
@@ -374,6 +384,9 @@ function animate(){
             bodies.splice(i, 1);
         }
     }
+
+    if(bodies.length == 0)
+        cancelAnimationFrame(animation);
 
     frame++;
 }

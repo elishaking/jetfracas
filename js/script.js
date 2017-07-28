@@ -8,6 +8,8 @@ function randeRange(x0, x1) {
 function randeRangeInt(x0, x1) {
     return Math.round(randeRange(x0, x1));
 }
+var background_color = '#D0E4F2';
+canvas.setAttribute('style', 'background-color: ' + background_color);
 var Bullet = (function () {
     function Bullet(c, x, y, dy, base, height) {
         this.c = c;
@@ -44,19 +46,25 @@ var Bullet = (function () {
     };
     return Bullet;
 }());
+var colors1 = [
+    '#30395C',
+    '#4A6491',
+    '#85A5CC'
+];
 var Bodies = (function () {
     function Bodies() {
         this.radius = 10;
         this.maxRadius = 15;
         this.vanquished = false;
+        this.color = 2;
         this.x = randeRangeInt(0 + this.radius, canvas.width - this.radius);
         this.y = randeRangeInt(30, 200);
-        this.dx = 5;
+        this.dx = randeRangeInt(3, 6);
     }
     Bodies.prototype.draw = function () {
         c.beginPath();
         c.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-        //c.fillStyle = this.color;
+        c.fillStyle = colors1[this.color];
         c.fill();
     };
     Bodies.prototype.update = function () {
@@ -140,6 +148,7 @@ var Bodies = (function () {
     Bodies.prototype.grow = function (growthRate) {
         if (!this.vanquished) {
             this.radius += growthRate;
+            this.color = (this.color > 0) ? --this.color : this.color;
             //this.draw();
             if (this.radius > this.maxRadius) {
                 this.vanquished = true;
@@ -152,6 +161,7 @@ var Bodies = (function () {
 var Jet = (function () {
     function Jet(c, x0, y0) {
         this.c = c;
+        this.color = 0;
         this.x = x0;
         this.y = y0;
         this.dx = 7;
@@ -208,9 +218,8 @@ var Jet = (function () {
         x -= this.rocketWidth;
         this.c.lineTo(x, y);
         this.c.closePath();
-        this.c.fillStyle = '#737373';
+        this.c.fillStyle = colors1[this.color];
         this.c.fill();
-        //c.stroke();
     };
     Jet.prototype.update = function (direction) {
         this.x += direction * this.dx;
@@ -260,7 +269,7 @@ function addBullets() {
 }
 var bodies = [];
 function addBodies() {
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 100; i++) {
         bodies.push(new Bodies());
     }
 }
@@ -303,6 +312,8 @@ function animate() {
             bodies.splice(i, 1);
         }
     }
+    if (bodies.length == 0)
+        cancelAnimationFrame(animation);
     frame++;
 }
 animate();
