@@ -294,7 +294,7 @@ class Jet{
         this.c.fill();
     }
 
-    stopForce = 0.02;
+    stopForce = 0.1;
     update(direction): void{
         if(direction == 0){
             this.dx += (Math.abs(this.dx) > 0) ?  -1 * this.dx * this.stopForce : 0;
@@ -384,9 +384,8 @@ function animate(){
             if(bodies[i].collision(bullets[j])){
                 growthRate++;
                 collision = true;
-                bullets.splice(j, 1);
+                //bullets.splice(j, 1);
             }
-
         }
         if(collision)
             bodies[i].grow(growthRate);

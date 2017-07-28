@@ -164,7 +164,7 @@ var Jet = (function () {
     function Jet(c, x0, y0) {
         this.c = c;
         this.color = 0;
-        this.stopForce = 0.02;
+        this.stopForce = 0.1;
         this.x = x0;
         this.y = y0;
         this.dx = 0;
@@ -310,7 +310,7 @@ function animate() {
             if (bodies[i].collision(bullets[j])) {
                 growthRate++;
                 collision = true;
-                bullets.splice(j, 1);
+                //bullets.splice(j, 1);
             }
         }
         if (collision)
